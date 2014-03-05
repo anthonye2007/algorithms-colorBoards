@@ -15,9 +15,6 @@ def driver
 end
 
 def greedy(rows, cols)
-    puts "Rows: " + rows.to_s
-    puts "Columns: " + cols.to_s
-
     board = Board.new(rows, cols)
 
     rows.each_with_index do |row|
@@ -29,6 +26,8 @@ def greedy(rows, cols)
             end 
         end
     end
+
+    puts board.to_s
 end
 
 class Board
@@ -37,10 +36,10 @@ class Board
         @cols = cols
         @length = rows.length
 
-        @board = Hash.new(@length * @length)
+        @board = Hash.new(@length)
 
-        (0..@length).each do |row|
-            (0..@length).each do |col|
+        (0..@length - 1).each do |row|
+            (0..@length - 1).each do |col|
                 @board[[row,col]] = false
             end
         end
@@ -52,6 +51,20 @@ class Board
         @board[[row,col]] = true
     end
     def to_s
+        str = ""
+        
+        (0..@length - 1).each do |row|
+            (0..@length - 1).each do |col|
+                if @board[[row,col]]
+                    str += "X"
+                else
+                    str += "-"
+                end
+            end
+            str += "\n"
+        end
+
+        return str
     end
 end
 
