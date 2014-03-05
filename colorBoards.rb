@@ -9,20 +9,20 @@
 ####################
 
 def driver
-    rows = [1, 1, 2]
-    cols = [1, 2, 1]
+    rows = [1, 0, 0]
+    cols = [1, 0, 0]
     greedy(rows, cols)
 end
 
 def greedy(rows, cols)
     board = Board.new(rows, cols)
 
-    rows.each_with_index do |row|
-        cols.each_with_index do |col|
-            while row > 0 && col > 0
-                board.add(row, col)
-                row -= 1
-                col -= 1
+    rows.each_with_index do |numInRow, i|
+        cols.each_with_index do |numInCol, j|
+            while numInRow > 0 && numInCol > 0
+                board.add(i, j)
+                numInRow -= 1
+                numInCol -= 1
             end 
         end
     end
