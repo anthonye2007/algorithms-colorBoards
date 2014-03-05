@@ -8,10 +8,10 @@
 # 3/4/2014
 ####################
 
-def driver
+def driver (should_log)
     rows = [2, 1, 1]
     cols = [1, 2, 1]
-    greedy2(rows, cols)
+    greedy2(rows, cols, should_log)
 end
 
 def greedy(rows, cols)
@@ -30,7 +30,7 @@ def greedy(rows, cols)
     puts board.to_s
 end
 
-def greedy2(rows, cols)
+def greedy2(rows, cols, should_log)
     board = Board.new(rows, cols)
 
     # make deep copies to avoid modifying the original references
@@ -38,10 +38,10 @@ def greedy2(rows, cols)
     new_cols = cols.clone
     puts 'Row: ' + rows.to_s
     puts 'Col: ' + cols.to_s
-    place_at_highest_intersection(board, new_rows, new_cols)
+    place_at_highest_intersection(board, new_rows, new_cols, should_log)
 end
 
-def place_at_highest_intersection(board, rows, cols)
+def place_at_highest_intersection(board, rows, cols, should_log)
     if rows.max <= 0 or cols.max <= 0
         puts board.to_s
         return
@@ -65,15 +65,15 @@ def place_at_highest_intersection(board, rows, cols)
             abort('Could not backtrack') if max_row_index.nil? || rows[max_row_index] == 0
         end
     end
-
-    puts 'Adding at row: ' + max_row_index.to_s + "\tcol: " + max_col_index.to_s
+    logger = Logger.new(should_log)
+    logger.log 'Adding at [' + max_row_index.to_s + ', ' + max_col_index.to_s + ']'
 
     rows[max_row_index] -= 1
     cols[max_col_index] -= 1
 
     board.add(max_row_index, max_col_index)
 
-    place_at_highest_intersection(board, rows, cols)
+    place_at_highest_intersection(board, rows, cols, should_log)
 end
 
 def find_unoccupied_col(board, row_index, cols, already_tried)
@@ -179,31 +179,42 @@ class Board
     end
 end
 
-def tests
+class Logger
+    @should_log = false
+    def initialize(on)
+      @should_log = on
+    end
+    def log (msg)
+      puts msg if @should_log
+    end
+end
+
+def tests (should_log)
     rows = [1,1]
     cols = [1,1]
-    greedy2(rows, cols)
+    greedy2(rows, cols, should_log)
     puts
 
     rows = [1,1,2]
     cols = [1,2,1]
-    greedy2(rows, cols)
+    greedy2(rows, cols, should_log)
     puts
 
     rows = [1,3,1]
     cols = [2,2,1]
-    greedy2(rows, cols)
+    greedy2(rows, cols, should_log)
     puts
 
     rows = [1,2,3,2]
     cols = [2,3,2,1]
-    greedy2(rows, cols)
+    greedy2(rows, cols, should_log)
     puts
 
     rows = [1,2,3,2]
     cols = [2,3,3,0]
-    greedy2(rows, cols)
+    greedy2(rows, cols, should_log)
 
 end
 
-tests
+should_log = ARGV.include?('-v')
+tests(should_log)
