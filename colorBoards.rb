@@ -14,6 +14,43 @@ def driver (should_log)
     greedy2(rows, cols, should_log)
 end
 
+def zoomin(rows, cols, should_log)
+  logger = Logger.new(should_log)
+
+  board = Board.new(rows, cols)
+
+  # make deep copies to avoid modifying the original references in board
+  new_rows = rows.clone
+  new_cols = cols.clone
+  puts 'Row: ' + new_rows.to_s
+  puts 'Col: ' + new_cols.to_s
+
+  num_rows_remaining = new_rows.length
+  new_rows.each_with_index do |row_value, row_index|
+    num_cols_remaining = new_cols.length
+    next if row_value == 0
+
+    cols_highest_first = new_cols.sort.reverse
+    cols_highest_first.each do |col_value|
+      #return if col_value > num_rows_remaining || row_value > num_cols_remaining
+      break if row_value > num_cols_remaining
+      next if col_value == 0
+      # TODO Fix bug where value appears multiple times in column array
+      col_index = new_cols.index(col_value)
+
+      logger.log 'Adding at [' + row_index.to_s + ', ' + col_index.to_s + ']'
+      board.add(row_index, col_index)
+
+
+      num_cols_remaining -= 1
+    end
+
+    num_rows_remaining -= 1
+  end
+
+  puts board.to_s
+end
+
 def greedy(rows, cols)
     board = Board.new(rows, cols)
 
@@ -161,8 +198,8 @@ class Board
     end
     def to_s
         str = ''
-
-        str += "Failed\n" unless is_valid?
+        is_valid?
+        #str += "Failed\n" unless is_valid?
 
         (0..@length - 1).each do |row|
             (0..@length - 1).each do |col|
@@ -189,7 +226,7 @@ class Logger
     end
 end
 
-def tests (should_log)
+def testGreedy2 (should_log)
     rows = [1,1]
     cols = [1,1]
     greedy2(rows, cols, should_log)
@@ -216,5 +253,40 @@ def tests (should_log)
 
 end
 
+def test_zoomin (should_log)
+  rows = [1,1]
+  cols = [1,1]
+  zoomin(rows, cols, should_log)
+  puts
+
+  rows = [1,1,2]
+  cols = [1,2,1]
+  zoomin(rows, cols, should_log)
+  puts
+
+  rows = [1,3,1]
+  cols = [2,2,1]
+  zoomin(rows, cols, should_log)
+  puts
+
+  rows = [1,2,3,2]
+  cols = [2,3,2,1]
+  zoomin(rows, cols, should_log)
+  puts
+
+  rows = [1,2,3,2]
+  cols = [2,3,3,0]
+  zoomin(rows, cols, should_log)
+end
+
+def easy_zoomin_test(should_log)
+  rows = [1,0]
+  cols = [0,1]
+  zoomin(rows, cols, should_log)
+end
+
+
 should_log = ARGV.include?('-v')
-tests(should_log)
+#testGreedy2(should_log)
+#test_zoomin(should_log)
+easy_zoomin_test(should_log)
