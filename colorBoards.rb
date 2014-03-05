@@ -11,8 +11,6 @@
 def driver
     rows = [2, 1, 1]
     cols = [1, 2, 1]
-    #greedy(rows, cols)
-    #puts ""
     greedy2(rows, cols)
 end
 
@@ -38,6 +36,8 @@ def greedy2(rows, cols)
     # make deep copies to avoid modifiying the original references
     newRows = rows.clone
     newCols = cols.clone
+    puts "Row: " + rows.to_s
+    puts "Col: " + cols.to_s
     placeAtHighestIntersection(board, newRows, newCols)
 end
 
@@ -51,7 +51,24 @@ def placeAtHighestIntersection(board, rows, cols)
     maxRowIndex = rows.index(rows.max)
     maxColIndex = cols.index(cols.max)
 
-    #puts "Row: " + maxRowIndex.to_s + "\tCol: " + maxColIndex.to_s 
+    if (board.occupied?(maxRowIndex, maxColIndex))
+        # try keeping the row steady and reduce the column
+        colsTried = [maxColIndex]
+        maxColIndex = findUnoccupiedCol(board, rows, cols, colsTried)
+
+        # if still occupied after reaching either all columns or column value of 0 
+        # then reset column to original value and do the same process with the rows
+        if (maxColIndex.nil?)
+            maxColIndex = cols.index(cols.max)
+            rowsTried = [maxRowIndex]
+            maxRowIndex = findUnoccupiedCol(board, cols, rows, rowsTried)
+
+            # fail if go through all rows or reach row of zero value
+            return nil if maxRowIndex.nil? || rows[maxRowIndex] == 0
+        end
+    end
+
+    puts "Row: " + maxRowIndex.to_s + "\tCol: " + maxColIndex.to_s 
 
     rows[maxRowIndex] -= 1
     cols[maxColIndex] -= 1
@@ -59,6 +76,29 @@ def placeAtHighestIntersection(board, rows, cols)
     board.add(maxRowIndex, maxColIndex)
 
     return placeAtHighestIntersection(board, rows, cols)
+end
+
+def findUnoccupiedCol(board, rowIndex, cols, alreadyTried)
+    # remember these are not the originals
+
+    sortedCols = cols.clone.sort
+    # we previously tried sortedCols.last and it didn't work, so get rid of it
+    sortedCols.pop
+
+    # map max of sortedCols back to cols
+    maxVal = sortedCols.last
+    indicesOfSameValues = []
+    cols.each_with_index do |col, i|
+        indicesOfSameValues.push(i) if col == maxVal && !alreadyTried.include?(i)
+    end
+
+    # pick the highest index not yet tried
+    indicesOfSameValues.each do |col|
+        return col if !board.occupied?(rowIndex, col)
+    end
+
+    # fail if reach here
+    return nil
 end
    
 class Board
@@ -86,6 +126,9 @@ class Board
     end
     def cols
         return @cols
+    end
+    def occupied?(row, col)
+        return @board[[row,col]]
     end
     def isValid?
         (0..@length - 1).each do |row|
@@ -138,4 +181,35 @@ class Board
     end
 end
 
-driver
+def tests
+    rows = [1,1]
+    cols = [1,1]
+    greedy2(rows, cols)
+    puts
+
+    rows = [1,1,2]
+    cols = [1,2,1]
+    greedy2(rows, cols)
+    puts
+
+    rows = [1,3,1]
+    cols = [2,2,1]
+    greedy2(rows, cols)
+    puts
+
+    rows = [1,2,3,2]
+    cols = [2,3,2,1]
+    greedy2(rows, cols)
+    puts
+
+    rows = [1,2,3,2]
+    cols = [2,3,3,0]
+    greedy2(rows, cols)
+
+end
+
+if (ARGV.include?('-t'))
+    tests
+else
+    tests
+end
