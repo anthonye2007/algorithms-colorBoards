@@ -17,12 +17,12 @@ end
 def greedy(rows, cols)
     board = Board.new(rows, cols)
 
-    rows.each_with_index do |numInRow, i|
-        cols.each_with_index do |numInCol, j|
-            while numInRow > 0 && numInCol > 0
+    rows.each_with_index do |num_in_row, i|
+        cols.each_with_index do |num_in_col, j|
+            while num_in_row > 0 && num_in_col > 0
                 board.add(i, j)
-                numInRow -= 1
-                numInCol -= 1
+                num_in_row -= 1
+                num_in_col -= 1
             end 
         end
     end
@@ -33,72 +33,72 @@ end
 def greedy2(rows, cols)
     board = Board.new(rows, cols)
 
-    # make deep copies to avoid modifiying the original references
-    newRows = rows.clone
-    newCols = cols.clone
-    puts "Row: " + rows.to_s
-    puts "Col: " + cols.to_s
-    placeAtHighestIntersection(board, newRows, newCols)
+    # make deep copies to avoid modifying the original references
+    new_rows = rows.clone
+    new_cols = cols.clone
+    puts 'Row: ' + rows.to_s
+    puts 'Col: ' + cols.to_s
+    place_at_highest_intersection(board, new_rows, new_cols)
 end
 
-def placeAtHighestIntersection(board, rows, cols)
+def place_at_highest_intersection(board, rows, cols)
     if rows.max <= 0 or cols.max <= 0
         puts board.to_s
         return
     end
 
     # pick highest row then highest col and place x there
-    maxRowIndex = rows.index(rows.max)
-    maxColIndex = cols.index(cols.max)
+    max_row_index = rows.index(rows.max)
+    max_col_index = cols.index(cols.max)
 
-    if (board.occupied?(maxRowIndex, maxColIndex))
+    if board.occupied?(max_row_index, max_col_index)
         # try keeping the row steady and reduce the column
-        colsTried = [maxColIndex]
-        maxColIndex = findUnoccupiedCol(board, rows, cols, colsTried)
+        cols_tried = [max_col_index]
+        max_col_index = find_unoccupied_col(board, rows, cols, cols_tried)
 
         # if still occupied after reaching either all columns or column value of 0 
         # then reset column to original value and do the same process with the rows
-        if (maxColIndex.nil?)
-            maxColIndex = cols.index(cols.max)
-            rowsTried = [maxRowIndex]
-            maxRowIndex = findUnoccupiedCol(board, cols, rows, rowsTried)
+        if max_col_index.nil?
+            max_col_index = cols.index(cols.max)
+            rows_tried = [max_row_index]
+            max_row_index = find_unoccupied_col(board, cols, rows, rows_tried)
 
             # fail if go through all rows or reach row of zero value
-            return nil if maxRowIndex.nil? || rows[maxRowIndex] == 0
+            return nil if max_row_index.nil? || rows[max_row_index] == 0
         end
     end
 
-    puts "Row: " + maxRowIndex.to_s + "\tCol: " + maxColIndex.to_s 
+    puts 'Row: ' + max_row_index.to_s + "\tCol: " + max_col_index.to_s
 
-    rows[maxRowIndex] -= 1
-    cols[maxColIndex] -= 1
+    rows[max_row_index] -= 1
+    cols[max_col_index] -= 1
 
-    board.add(maxRowIndex, maxColIndex)
+    board.add(max_row_index, max_col_index)
 
-    return placeAtHighestIntersection(board, rows, cols)
+    place_at_highest_intersection(board, rows, cols)
 end
 
-def findUnoccupiedCol(board, rowIndex, cols, alreadyTried)
+def find_unoccupied_col(board, row_index, cols, already_tried)
     # remember these are not the originals
 
-    sortedCols = cols.clone.sort
+    sorted_cols = cols.clone.sort
     # we previously tried sortedCols.last and it didn't work, so get rid of it
-    sortedCols.pop
+    sorted_cols.pop
 
     # map max of sortedCols back to cols
-    maxVal = sortedCols.last
-    indicesOfSameValues = []
+    max_val = sorted_cols.last
+    indicies_of_same_value = []
     cols.each_with_index do |col, i|
-        indicesOfSameValues.push(i) if col == maxVal && !alreadyTried.include?(i)
+        indicies_of_same_value.push(i) if col == max_val && !already_tried.include?(i)
     end
 
     # pick the highest index not yet tried
-    indicesOfSameValues.each do |col|
-        return col if !board.occupied?(rowIndex, col)
+    indicies_of_same_value.each do |col|
+      return col unless board.occupied?(row_index, col)
     end
 
     # fail if reach here
-    return nil
+    nil
 end
    
 class Board
@@ -116,68 +116,68 @@ class Board
         end
     end
     def length
-        return @length
+        @length
     end
     def add(row, col)
         @board[[row,col]] = true
     end
     def rows
-        return @rows
+        @rows
     end
     def cols
-        return @cols
+        @cols
     end
     def occupied?(row, col)
-        return @board[[row,col]]
+        @board[[row,col]]
     end
-    def isValid?
+    def is_valid?
         (0..@length - 1).each do |row|
-            numTokensExpected = @rows[row]
+            num_tokens_expected = @rows[row]
             sum = 0
 
             (0..@length - 1).each do |col|
                 sum += 1 if @board[[row,col]]
             end
 
-            if sum != numTokensExpected
-                puts "Failed on row " + row.to_s + ": expected " + numTokensExpected.to_s + " tokens but got " + sum.to_s
+            if sum != num_tokens_expected
+                puts 'Failed on row ' + row.to_s + ': expected ' + num_tokens_expected.to_s + ' tokens but got ' + sum.to_s
                 return false 
             end
         end
 
         (0..@length - 1).each do |col|
-            numTokensExpected = @cols[col]
+            num_tokens_expected = @cols[col]
             sum = 0
 
             (0..length - 1).each do |row|
                 sum += 1 if @board[[row,col]]
             end
 
-            if sum != numTokensExpected
-                puts "Failed on col " + col.to_s + ": expected " + numTokensExpected.to_s + " tokens but got " + sum.to_s
+            if sum != num_tokens_expected
+                puts 'Failed on col ' + col.to_s + ': expected ' + num_tokens_expected.to_s + ' tokens but got ' + sum.to_s
                 return false 
             end
         end
 
-        return true
+        true
     end
     def to_s
-        str = ""
+        str = ''
 
-        str += "Failed\n" if not isValid?
+        str += "Failed\n" unless is_valid?
 
         (0..@length - 1).each do |row|
             (0..@length - 1).each do |col|
                 if @board[[row,col]]
-                    str += "X"
+                    str += 'X'
                 else
-                    str += "-"
+                    str += '-'
                 end
             end
             str += "\n"
         end
 
-        return str
+        str
     end
 end
 
@@ -208,8 +208,4 @@ def tests
 
 end
 
-if (ARGV.include?('-t'))
-    tests
-else
-    tests
-end
+tests
