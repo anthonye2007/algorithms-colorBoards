@@ -53,20 +53,20 @@ def place_at_highest_intersection(board, rows, cols)
 
     if board.occupied?(max_row_index, max_col_index)
         # try keeping the row steady and reduce the column
-        max_col_index = find_unoccupied_col(board, rows, cols, max_col_index)
+        max_col_index = find_unoccupied_col(board, max_row_index, cols, max_col_index)
 
         # if still occupied after reaching either all columns or column value of 0 
         # then reset column to original value and do the same process with the rows
         if max_col_index.nil?
             max_col_index = cols.index(cols.max)
-            max_row_index = find_unoccupied_col(board, cols, rows, max_row_index)
+            max_row_index = find_unoccupied_col(board, max_col_index, rows, max_row_index)
 
             # fail if go through all rows or reach row of zero value
             abort('Could not backtrack') if max_row_index.nil? || rows[max_row_index] == 0
         end
     end
 
-    puts 'Row: ' + max_row_index.to_s + "\tCol: " + max_col_index.to_s
+    puts 'Adding at row: ' + max_row_index.to_s + "\tcol: " + max_col_index.to_s
 
     rows[max_row_index] -= 1
     cols[max_col_index] -= 1
