@@ -27,6 +27,7 @@ def greedy(rows, cols)
         end
     end
 
+    puts "Failed" if not board.isValid?
     puts board.to_s
 end
 
@@ -35,6 +36,7 @@ class Board
         @rows = rows
         @cols = cols
         @length = rows.length
+        @numTokens = 0
 
         @board = Hash.new(@length)
 
@@ -49,10 +51,39 @@ class Board
     end
     def add(row, col)
         @board[[row,col]] = true
+        @numTokens += 1
+    end
+    def numTokens
+        return @numTokens
+    end
+    def isValid?
+        (0..@length - 1).each do |row|
+            numTokensExpected = @rows[row]
+            sum = 0
+
+            (0..@length - 1).each do |col|
+                sum += 1 if @board[[row,col]]
+            end
+
+            return false if sum != numTokensExpected
+        end
+
+        (0..@length - 1).each do |col|
+            numTokensExpected = @cols[col]
+            sum = 0
+
+            (0..length - 1).each do |row|
+                sum += 1 if @board[[row,col]]
+            end
+
+            return false if sum != numTokensExpected
+        end
+
+        return true
     end
     def to_s
         str = ""
-        
+
         (0..@length - 1).each do |row|
             (0..@length - 1).each do |col|
                 if @board[[row,col]]
