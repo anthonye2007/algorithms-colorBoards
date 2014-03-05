@@ -53,18 +53,16 @@ def place_at_highest_intersection(board, rows, cols)
 
     if board.occupied?(max_row_index, max_col_index)
         # try keeping the row steady and reduce the column
-        cols_tried = [max_col_index]
-        max_col_index = find_unoccupied_col(board, rows, cols, cols_tried)
+        max_col_index = find_unoccupied_col(board, rows, cols, max_col_index)
 
         # if still occupied after reaching either all columns or column value of 0 
         # then reset column to original value and do the same process with the rows
         if max_col_index.nil?
             max_col_index = cols.index(cols.max)
-            rows_tried = [max_row_index]
-            max_row_index = find_unoccupied_col(board, cols, rows, rows_tried)
+            max_row_index = find_unoccupied_col(board, cols, rows, max_row_index)
 
             # fail if go through all rows or reach row of zero value
-            return nil if max_row_index.nil? || rows[max_row_index] == 0
+            abort('Could not backtrack') if max_row_index.nil? || rows[max_row_index] == 0
         end
     end
 
@@ -89,7 +87,7 @@ def find_unoccupied_col(board, row_index, cols, already_tried)
     max_val = sorted_cols.last
     indicies_of_same_value = []
     cols.each_with_index do |col, i|
-        indicies_of_same_value.push(i) if col == max_val && !already_tried.include?(i)
+        indicies_of_same_value.push(i) if col == max_val && already_tried != i
     end
 
     # pick the highest index not yet tried
