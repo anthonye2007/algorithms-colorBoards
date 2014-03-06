@@ -327,6 +327,11 @@ def test_zoomin (should_log)
   zoomin(rows, cols, should_log)
   puts
 
+  rows = [1,1,3]
+  cols = [1,1,3]
+  zoomin(rows, cols, should_log)
+  puts
+
   rows = [1,2,3,2]
   cols = [2,3,2,1]
   zoomin(rows, cols, should_log)
@@ -353,15 +358,3 @@ should_log = ARGV.include?('-v')
 
 #easy_zoomin_test(should_log)
 test_zoomin(should_log)
-
-=begin
-columns = []
-columns.push(Position.new(0,10))
-columns.push(Position.new(1,5))
-columns.push(Position.new(2, 8))
-
-sorted = bubble_sort(columns)
-sorted.each do |i|
-  puts 'value: ' + i.value.to_s + "\tindex: " + i.index.to_s
-end
-=end
