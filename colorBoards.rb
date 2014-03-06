@@ -182,7 +182,7 @@ end
 def random_board_config(n)
   rows = []
 
-  (0..n).each { rows.push(rand(n)) }
+  (0..n-1).each { rows.push(rand(n)) }
 
   sum = 0
   rows.each { |value| sum += value }
@@ -388,6 +388,18 @@ def easy_zoomin_test(should_log)
   zoomin(rows, cols, should_log)
 end
 
+def run_boards(times, size)
+  (0..times-1).each do
+    board = random_board_config(size)
+    rows = board.first
+    cols = board.last
+
+    puts 'Rows: ' + rows.to_s
+    puts 'Cols: ' + cols.to_s
+    puts
+  end
+end
+
 
 should_log = ARGV.include?('-v')
 #testGreedy2(should_log)
@@ -395,4 +407,4 @@ should_log = ARGV.include?('-v')
 #easy_zoomin_test(should_log)
 #test_zoomin(should_log)
 
-puts random_board_config(100).to_s
+run_boards(1, 5)
