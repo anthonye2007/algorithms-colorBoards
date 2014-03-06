@@ -8,12 +8,6 @@
 # 3/4/2014
 ####################
 
-def driver (should_log)
-    rows = [2, 1, 1]
-    cols = [1, 2, 1]
-    greedy2(rows, cols, should_log)
-end
-
 def bubble_sort(list)
   return list if list.size <= 1 # already sorted
   swapped = true
@@ -38,8 +32,8 @@ def zoomin(rows, cols, should_log)
   # make deep copies to avoid modifying the original references in board
   new_rows = rows.clone
   new_cols = cols.clone
-  puts 'Row: ' + new_rows.to_s
-  puts 'Col: ' + new_cols.to_s
+  #puts 'Row: ' + new_rows.to_s
+  #puts 'Col: ' + new_cols.to_s
 
   columns = []
   new_cols.each_with_index do |value, index|
@@ -72,7 +66,7 @@ def zoomin(rows, cols, should_log)
     end
   end
 
-  puts board.to_s
+  board
 end
 
 def log_positions (positions, should_log)
@@ -109,21 +103,27 @@ def greedy(rows, cols)
     puts board.to_s
 end
 
-def greedy2(rows, cols, should_log)
+def greedy_with_backtracking(rows, cols, should_log)
     board = Board.new(rows, cols)
 
     # make deep copies to avoid modifying the original references
     new_rows = rows.clone
     new_cols = cols.clone
-    puts 'Row: ' + rows.to_s
-    puts 'Col: ' + cols.to_s
-    place_at_highest_intersection(board, new_rows, new_cols, should_log)
+    puts 'Row: ' + rows.to_s if should_log
+    puts 'Col: ' + cols.to_s if should_log
+    board = place_at_highest_intersection(board, new_rows, new_cols, should_log)
+
+    if board.nil? || !board.is_valid?
+      return false
+    end
+
+    board
 end
 
 def place_at_highest_intersection(board, rows, cols, should_log)
     if rows.max <= 0 or cols.max <= 0
-        puts board.to_s
-        return
+        puts board.to_s if should_log
+        return board
     end
 
     # pick highest row then highest col and place x there
@@ -141,7 +141,7 @@ def place_at_highest_intersection(board, rows, cols, should_log)
             max_row_index = find_unoccupied_col(board, max_col_index, rows, max_row_index)
 
             # fail if go through all rows or reach row of zero value
-            abort('Could not backtrack') if max_row_index.nil? || rows[max_row_index] == 0
+            return nil if max_row_index.nil? || rows[max_row_index] == 0
         end
     end
     logger = Logger.new(should_log)
@@ -253,7 +253,7 @@ class Board
             end
 
             if sum != num_tokens_expected
-                puts 'Failed on row ' + row.to_s + ': expected ' + num_tokens_expected.to_s + ' tokens but got ' + sum.to_s
+                #puts 'Failed on row ' + row.to_s + ': expected ' + num_tokens_expected.to_s + ' tokens but got ' + sum.to_s
                 return false 
             end
         end
@@ -267,7 +267,7 @@ class Board
             end
 
             if sum != num_tokens_expected
-                puts 'Failed on col ' + col.to_s + ': expected ' + num_tokens_expected.to_s + ' tokens but got ' + sum.to_s
+                #puts 'Failed on col ' + col.to_s + ': expected ' + num_tokens_expected.to_s + ' tokens but got ' + sum.to_s
                 return false 
             end
         end
@@ -320,62 +320,75 @@ class Position
   end
 end
 
-def testGreedy2 (should_log)
+def test_greedy_with_backtracking (should_log)
     rows = [1,1]
     cols = [1,1]
-    greedy2(rows, cols, should_log)
-    puts
+    test_specific_greedy(rows, cols, should_log)
 
     rows = [1,1,2]
     cols = [1,2,1]
-    greedy2(rows, cols, should_log)
-    puts
+    test_specific_greedy(rows, cols, should_log)
+
+    rows = [1,1,3]
+    cols = [1,1,3]
+    test_specific_greedy(rows, cols, should_log)
 
     rows = [1,3,1]
     cols = [2,2,1]
-    greedy2(rows, cols, should_log)
-    puts
+    test_specific_greedy(rows, cols, should_log)
 
     rows = [1,2,3,2]
     cols = [2,3,2,1]
-    greedy2(rows, cols, should_log)
-    puts
+    test_specific_greedy(rows, cols, should_log)
 
     rows = [1,2,3,2]
     cols = [2,3,3,0]
-    greedy2(rows, cols, should_log)
+    test_specific_greedy(rows, cols, should_log)
+end
 
+def test_specific_greedy(rows, cols, should_log)
+  board = greedy_with_backtracking(rows, cols, should_log)
+  puts 'Rows: ' + rows.to_s
+  puts 'Cols: ' + cols.to_s
+
+  if !board
+    puts "Failed\n\n"
+  else
+    puts board.to_s + "\n"
+  end
 end
 
 def test_zoomin (should_log)
   rows = [1,1]
   cols = [1,1]
-  zoomin(rows, cols, should_log)
-  puts
+  test_specific_zoomin(rows, cols, should_log)
 
   rows = [1,1,2]
   cols = [1,2,1]
-  zoomin(rows, cols, should_log)
-  puts
+  test_specific_zoomin(rows, cols, should_log)
 
   rows = [1,3,1]
   cols = [2,2,1]
-  zoomin(rows, cols, should_log)
-  puts
+  test_specific_zoomin(rows, cols, should_log)
 
   rows = [1,1,3]
   cols = [1,1,3]
-  zoomin(rows, cols, should_log)
-  puts
+  test_specific_zoomin(rows, cols, should_log)
 
   rows = [1,2,3,2]
   cols = [2,3,2,1]
-  zoomin(rows, cols, should_log)
-  puts
+  test_specific_zoomin(rows, cols, should_log)
 
   rows = [1,2,3,2]
   cols = [2,3,3,0]
-  zoomin(rows, cols, should_log)
+  test_specific_zoomin(rows, cols, should_log)
+end
+
+def test_specific_zoomin(rows, cols, should_log)
+  board = zoomin(rows, cols, should_log)
+  puts 'Rows: ' + rows.to_s
+  puts 'Cols: ' + cols.to_s
+  puts board.to_s + "\n"
 end
 
 def easy_zoomin_test(should_log)
@@ -388,23 +401,66 @@ def easy_zoomin_test(should_log)
   zoomin(rows, cols, should_log)
 end
 
-def run_boards(times, size)
-  (0..times-1).each do
-    board = random_board_config(size)
-    rows = board.first
-    cols = board.last
+def run_boards(times, size, should_log)
+  puts 'Running ' + times.to_s + ' times with size ' + size.to_s
+  time_zoomin(times, size, should_log)
+  time_greedy(times, size, should_log)
+end
 
-    puts 'Rows: ' + rows.to_s
-    puts 'Cols: ' + cols.to_s
-    puts
+def time_greedy(times, size, should_log)
+  num_fails = 0
+
+  start_time = Time.now
+  (0..times-1).each do
+    arrays = random_board_config(size)
+    rows = arrays.first
+    cols = arrays.last
+
+    board = greedy_with_backtracking(rows, cols, should_log)
+    num_fails += 1 unless board
   end
+  end_time = Time.now
+  elapsed_time = end_time - start_time # seconds
+  average_time_fail = elapsed_time / num_fails.to_f
+  average_time_succeed = elapsed_time / (times - num_fails).to_f
+
+  puts 'Number of greedy fails: ' + num_fails.to_s
+  puts 'Average time for greedy success: ' + average_time_fail.to_s + ' seconds'
+  puts 'Average time for greedy failure: ' + average_time_succeed.to_s + ' seconds'
+end
+
+def time_zoomin(times, size, should_log)
+  start_time = Time.now
+  num_illegal = 0
+  (0..times-1).each do
+    arrays = random_board_config(size)
+    rows = arrays.first
+    cols = arrays.last
+
+    board = zoomin(rows, cols, should_log)
+    num_illegal += 1 unless board.is_valid?
+  end
+  end_time = Time.now
+  elapsed_time = end_time - start_time # seconds
+  avg_time = elapsed_time / times.to_f
+
+  puts 'Number illegal colorings: ' + num_illegal.to_s
+  puts 'Average time for zoomin: ' + avg_time.to_s + ' seconds'
 end
 
 
 should_log = ARGV.include?('-v')
-#testGreedy2(should_log)
 
-#easy_zoomin_test(should_log)
-#test_zoomin(should_log)
+test_greedy_with_backtracking(should_log) if ARGV.include?('-g')
+test_zoomin(should_log) if ARGV.include?('-z')
 
-run_boards(1, 5)
+if (ARGV.length == 1 && !ARGV.first.include?('-'))
+  size = ARGV.first.to_i
+  run_boards(1000, size, should_log)
+elsif (ARGV.length == 2)
+  size = ARGV.first.to_i
+  times = ARGV.last.to_i
+  run_boards(times, size, should_log)
+else
+  run_boards(1000, 3, should_log) if ARGV.include?('-r') or ARGV.length == 0
+end
