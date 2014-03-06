@@ -14,6 +14,22 @@ def driver (should_log)
     greedy2(rows, cols, should_log)
 end
 
+def bubble_sort(list)
+  return list if list.size <= 1 # already sorted
+  swapped = true
+  while swapped do
+    swapped = false
+    0.upto(list.size-2) do |i|
+      if list[i].value < list[i+1].value
+        list[i], list[i+1] = list[i+1], list[i] # swap values
+        swapped = true
+      end
+    end
+  end
+
+  list
+end
+
 def zoomin(rows, cols, should_log)
   logger = Logger.new(should_log)
 
@@ -25,30 +41,56 @@ def zoomin(rows, cols, should_log)
   puts 'Row: ' + new_rows.to_s
   puts 'Col: ' + new_cols.to_s
 
-  num_rows_remaining = new_rows.length
+  columns = []
+  new_cols.each_with_index do |value, index|
+    if value > new_rows.length
+      return
+    end
+    pos = Position.new(index, value)
+    columns.push(pos)
+  end
+
+  # sort columns
+  sorted_cols = bubble_sort(columns)
+
   new_rows.each_with_index do |row_value, row_index|
-    num_cols_remaining = new_cols.length
-    next if row_value == 0
+    num_cols_remaining = row_value
+    next if num_cols_remaining == 0
 
-    cols_highest_first = new_cols.sort.reverse
-    cols_highest_first.each do |col_value|
-      #return if col_value > num_rows_remaining || row_value > num_cols_remaining
-      break if row_value > num_cols_remaining
-      next if col_value == 0
-      # TODO Fix bug where value appears multiple times in column array
-      col_index = new_cols.index(col_value)
+    already_added = []
+    while sorted_cols.first.value > 0 && num_cols_remaining > 0
+      log_positions(sorted_cols, should_log)
+      position_to_add = get_position(sorted_cols.clone, already_added)
 
-      logger.log 'Adding at [' + row_index.to_s + ', ' + col_index.to_s + ']'
-      board.add(row_index, col_index)
+      logger.log 'Adding at [' + row_index.to_s + ', ' + position_to_add.index.to_s + ']'
+      board.add(row_index, position_to_add.index)
+      already_added.push(position_to_add.index)
 
-
+      position_to_add.decrement
+      sorted_cols = bubble_sort(sorted_cols)
       num_cols_remaining -= 1
     end
-
-    num_rows_remaining -= 1
   end
 
   puts board.to_s
+end
+
+def log_positions (positions, should_log)
+  logger = Logger.new(should_log)
+  positions.each do |i|
+    logger.log 'value: ' + i.value.to_s + "\tindex: " + i.index.to_s
+  end
+end
+
+# Return index of first empty spot in positions
+# Assume positions is sorted with highest value in first position
+def get_position(positions, already_added)
+  if already_added.include?(positions.first.index)
+    positions.shift
+    return get_position(positions, already_added)
+  end
+
+  positions.first
 end
 
 def greedy(rows, cols)
@@ -226,6 +268,22 @@ class Logger
     end
 end
 
+class Position
+  def initialize(index, value)
+    @index = index
+    @value = value
+  end
+  def index
+    @index
+  end
+  def value
+    @value
+  end
+  def decrement
+    @value -= 1
+  end
+end
+
 def testGreedy2 (should_log)
     rows = [1,1]
     cols = [1,1]
@@ -283,10 +341,27 @@ def easy_zoomin_test(should_log)
   rows = [1,0]
   cols = [0,1]
   zoomin(rows, cols, should_log)
+
+  rows = [2,1]
+  cols = [2,1]
+  zoomin(rows, cols, should_log)
 end
 
 
 should_log = ARGV.include?('-v')
 #testGreedy2(should_log)
-#test_zoomin(should_log)
-easy_zoomin_test(should_log)
+
+#easy_zoomin_test(should_log)
+test_zoomin(should_log)
+
+=begin
+columns = []
+columns.push(Position.new(0,10))
+columns.push(Position.new(1,5))
+columns.push(Position.new(2, 8))
+
+sorted = bubble_sort(columns)
+sorted.each do |i|
+  puts 'value: ' + i.value.to_s + "\tindex: " + i.index.to_s
+end
+=end
