@@ -177,6 +177,42 @@ def find_unoccupied_col(board, row_index, cols, already_tried)
     # fail if reach here
     nil
 end
+
+# Return random board config of size n
+def random_board_config(n)
+  rows = []
+
+  (0..n).each { rows.push(rand(n)) }
+
+  sum = 0
+  rows.each { |value| sum += value }
+
+  if sum < (n**2)/4
+    (0..rows.length-1).each do |i|
+      rows[i] *= 2 unless rows[i] >= n/2
+    end
+  end
+
+  if sum > (2 * n**2) / 3
+    (0..rows.length-1).each do |i|
+      rows[i] /= 2
+    end
+  end
+
+  cols = randomly_swap(rows.clone)
+
+  [rows, cols]
+end
+
+def randomly_swap(list)
+  (0..list.length).each do
+    index = rand(list.length)
+
+    # remove and put at end of list
+    list.push(list.slice!(index))
+  end
+  list
+end
    
 class Board
     def initialize(rows, cols)
@@ -357,4 +393,6 @@ should_log = ARGV.include?('-v')
 #testGreedy2(should_log)
 
 #easy_zoomin_test(should_log)
-test_zoomin(should_log)
+#test_zoomin(should_log)
+
+puts random_board_config(100).to_s
